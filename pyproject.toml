@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "local-jarvis"
+version = "0.1.0"
+description = "Local multimodal Windows assistant"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "local-jarvis" }]
+dependencies = [
+  "accelerate>=0.34.2",
+  "bitsandbytes>=0.45.0",
+  "duckduckgo-search>=6.2.6",
+  "langchain-core>=0.3.21",
+  "langgraph>=0.2.45",
+  "mss>=9.0.2",
+  "numpy>=1.26.4",
+  "onnxruntime-gpu>=1.19.2",
+  "openwakeword>=0.6.0",
+  "Pillow>=10.4.0",
+  "pydantic>=2.9.2",
+  "PyYAML>=6.0.2",
+  "sounddevice>=0.5.0",
+  "torch>=2.5.0",
+  "transformers>=4.46.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.3",
+  "pytest-timeout>=2.3.1",
+  "ruff>=0.7.1"
+]
+
+[project.scripts]
+jarvis = "jarvis.main:run"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

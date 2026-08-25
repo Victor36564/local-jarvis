@@ -1,0 +1,42 @@
+audio:
+  sample_rate: 16000
+  channels: 1
+  wake_chunk_size: 1280
+  command_seconds: 18
+  wake_threshold: 0.52
+  debounce_seconds: 1.2
+  transcription_mode: stt_fallback
+  stt_model_id: openai/whisper-small.en
+
+vision:
+  max_width: 1024
+  max_height: 576
+  primary_monitor_only: true
+
+model:
+  model_id: google/gemma-4-E4B-it
+  device: cuda:0
+  quantization: 4bit
+  max_new_tokens: 192
+  max_context_tokens: 3072
+  vram_budget_gb: 7.5
+
+tools:
+  command_timeout_seconds: 20
+  max_output_chars: 10000
+  require_confirmation: true
+  allowlist:
+    - dir
+    - echo
+    - type
+    - Get-ChildItem
+    - Get-Location
+    - git status
+    - git log
+    - python --version
+
+runtime:
+  listen_on_startup: true
+  recursion_limit: 3
+  max_tool_calls_per_turn: 3
+  log_level: INFO

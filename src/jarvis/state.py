@@ -1,0 +1,19 @@
+from __future__ import annotations
+
+from typing import Any, TypedDict
+
+
+class ToolCall(TypedDict):
+    name: str
+    arguments: dict[str, Any]
+
+
+class JarvisState(TypedDict, total=False):
+    transcript: str
+    audio: Any
+    screenshot: Any
+    messages: list[dict[str, Any]]
+    pending_tool_call: ToolCall | None
+    tool_result: dict[str, Any] | None
+    tool_calls_count: int
+    final_response: str
