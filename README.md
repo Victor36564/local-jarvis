@@ -29,9 +29,10 @@ This is an implementation starter. It is not production-ready yet.
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.venv\Scripts\Activate
 python -m pip install --upgrade pip
-pip install -e .[dev]
+cd local-jarvis
+pip install -e . --extra-index-url https://download.pytorch.org/whl/cu121
 ```
 
 If editable install with extras fails in your shell, use:

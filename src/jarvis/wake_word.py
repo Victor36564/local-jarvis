@@ -21,7 +21,22 @@ class WakeWordListener:
     def initialize(self) -> None:
         from openwakeword.model import Model
 
-        self._model = Model(wakeword_models=[self.model_name])
+        # 1. Initialize openwakeword clean without passing bad kwargs
+        self._model = Model(
+            wakeword_models=[self.model_name],
+            inference_framework="onnx"
+        )
+
+        # 2. Force both the preprocessor and model sessions to release your full 4060 GPU
+        cpu_provider = ["CPUExecutionProvider"]
+        
+        # Shift the embedding engine session to CPU
+        if hasattr(self._model, 'preprocessor') and hasattr(self._model.preprocessor, 'melspec_model'):
+            self._model.preprocessor.melspec_model.set_providers(cpu_provider)
+            
+        # Shift the actual hotword prediction classification layers to CPU
+        for name in self._model.models:
+            self._model.models[name].set_providers(cpu_provider)
 
     def listen(self, on_wake: Callable[[], None]) -> None:
         import sounddevice as sd
@@ -36,7 +51,13 @@ class WakeWordListener:
 
             samples = np.squeeze(indata).astype(np.float32)
             pred = self._model.predict(samples)
-            score = float(pred.get(self.model_name, 0.0))
+            
+            # 3. Dynamic lookup prevents an error if the model dictionary key 
+            # uses the absolute path or a modified variant of self.model_name
+            score = 0.0
+            if pred:
+                score = float(next(iter(pred.values())))
+
             now = time.monotonic()
 
             if score >= self.cfg.wake_threshold and now - self._last_trigger > self.cfg.debounce_seconds:
