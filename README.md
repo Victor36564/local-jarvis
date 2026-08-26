@@ -33,6 +33,7 @@ python -m venv .venv
 python -m pip install --upgrade pip
 cd local-jarvis
 pip install -e . --extra-index-url https://download.pytorch.org/whl/cu121
+python -c "import openwakeword; openwakeword.utils.download_models()"
 ```
 
 If editable install with extras fails in your shell, use:
