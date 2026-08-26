@@ -29,13 +29,28 @@ def infer_once(
     messages = build_messages(transcript, tool_result=tool_result)
     messages[0]["content"] = f"{messages[0]['content']} {TOOL_CALL_SCHEMA_HELP}"
 
-    inputs = processor(
-        text=[m["content"] for m in messages],
-        images=[screenshot] if screenshot is not None else None,
-        audio=[audio] if audio is not None else None,
-        return_tensors="pt",
-        padding=True,
+    # Inject required modality tokens into the user prompt (assuming last message is the user)
+    if screenshot is not None:
+        messages[-1]["content"] = f"<|image|>\n{messages[-1]['content']}"
+        
+    if audio is not None:
+        messages[-1]["content"] = f"<|audio|>\n{messages[-1]['content']}"
+
+    # Flatten messages into a single prompt string using the processor's built-in template
+    formatted_text = processor.apply_chat_template(
+        messages, 
+        tokenize=False, 
+        add_generation_prompt=True
     )
+
+    # Only include image/audio keys if they are actually present, avoiding mismatched lists
+    kwargs = {"text": formatted_text, "return_tensors": "pt", "padding": True}
+    if screenshot is not None:
+        kwargs["images"] = [screenshot]
+    if audio is not None:
+        kwargs["audio"] = [audio]
+
+    inputs = processor(**kwargs)
 
     inputs = {k: v.to(model.device) if hasattr(v, "to") else v for k, v in inputs.items()}
     output_ids = model.generate(**inputs, max_new_tokens=max_new_tokens)
