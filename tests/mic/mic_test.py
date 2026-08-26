@@ -6,7 +6,7 @@ import sounddevice as sd
 from openwakeword.model import Model
 
 # --- Configuration Constants ---
-WAKE_WORD = "alexa"
+WAKE_WORD = "hey_jarvis"  # The wake word to listen for
 
 # Initialize the openWakeWord model globally
 oww_model = Model(wakeword_models=[WAKE_WORD], inference_framework="onnx")

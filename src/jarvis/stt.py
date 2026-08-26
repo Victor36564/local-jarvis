@@ -41,5 +41,6 @@ def transcribe_audio(audio: np.ndarray, sample_rate: int, model_id: str) -> str:
 
     text = result.get("text", "") if isinstance(result, dict) else str(result)
     transcript = text.strip()
+    logger.info("STT model %s produced transcript: %s", model_id, transcript)
     logger.info("Generated transcript with %d chars", len(transcript))
     return transcript
