@@ -3,6 +3,8 @@ audio:
   channels: 1
   wake_chunk_size: 1280
   command_seconds: 18
+  silence_seconds: 2.0
+  silence_threshold: 0.01
   wake_threshold: 0.52
   debounce_seconds: 1.2
   transcription_mode: stt_fallback
@@ -28,6 +30,7 @@ tools:
   allowlist:
     - dir
     - echo
+    - nvidia-smi
     - type
     - Get-ChildItem
     - Get-Location

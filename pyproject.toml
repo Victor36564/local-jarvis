@@ -12,7 +12,7 @@ authors = [{ name = "local-jarvis" }]
 dependencies = [
   "accelerate>=0.34.2",
   "bitsandbytes>=0.45.0",
-  "duckduckgo-search>=6.2.6",
+  "ddgs>=9.0.0",
   "langchain-core>=0.3.21",
   "langgraph>=0.2.45",
   "mss>=9.0.2",

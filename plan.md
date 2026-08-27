@@ -40,7 +40,7 @@ The model must be provided with a strict JSON schema for the tools it can execut
 | `execute_terminal_command` | `command` (string) | Runs a command using `subprocess.run(..., shell=True)` on Windows. Must return `stdout`/`stderr` back to the agent context. |
 | `read_file_content` | `file_path` (string) | Reads the contents of a local file (handling Windows `\\` pathing). |
 | `create_note` | `content` (str), `title` (str, optional) | Writes a `.txt` file directly to `os.path.join(os.path.expanduser("~"), "Desktop")` or opens it via `subprocess.Popen(["notepad.exe", file_path])`. |
-| `web_search` | `query` (str), `open_in_browser` (bool) | If `True`, uses `webbrowser.open()` to launch the default Windows browser (Edge/Chrome). If `False`, uses `duckduckgo_search` to fetch text snippets silently. |
+| `web_search` | `query` (str), `open_in_browser` (bool) | If `True`, uses `webbrowser.open()` to launch the default Windows browser (Edge/Chrome). If `False`, uses `ddgs` to fetch text snippets silently; empty searches return `No search results found`. |
 
 ## 5. Implementation Milestones
 
