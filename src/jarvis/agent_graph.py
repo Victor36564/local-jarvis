@@ -50,8 +50,8 @@ def build_graph(model: Any, processor: Any, cfg: JarvisConfig):
         )
         if result["type"] == "tool_call":
             logger.info("Tool call requested: %s", result["payload"])
-            if result["payload"] == state.get("last_tool_call") and state.get("tool_result") is not None:
-                logger.info("Repeated tool call not executed; returning previous result")
+            if state.get("tool_result") is not None:
+                logger.info("Follow-up tool call not executed; returning previous result")
                 return {
                     "final_response": format_tool_result(
                         result["payload"]["tool_name"], state["tool_result"]
@@ -95,10 +95,16 @@ def build_graph(model: Any, processor: Any, cfg: JarvisConfig):
 
         logger.info("Tool '%s' completed with result: %s", name, result)
 
-        return {"tool_result": result, "pending_tool_call": None, "last_tool_call": call}
+        response = {"tool_result": result, "pending_tool_call": None, "last_tool_call": call}
+        if "error" in result:
+            response["final_response"] = format_tool_result(name or "tool", result)
+        return response
 
     def should_run_tool(state: JarvisState) -> str:
         return "tool" if state.get("pending_tool_call") else "end"
+
+    def should_continue_after_tool(state: JarvisState) -> str:
+        return "end" if state.get("final_response") else "infer"
 
     graph.add_node("infer", infer_node)
     graph.add_node("tool", tool_node)
@@ -112,6 +118,13 @@ def build_graph(model: Any, processor: Any, cfg: JarvisConfig):
             "end": END,
         },
     )
-    graph.add_edge("tool", "infer")
+    graph.add_conditional_edges(
+        "tool",
+        should_continue_after_tool,
+        {
+            "infer": "infer",
+            "end": END,
+        },
+    )
 
     return graph.compile()

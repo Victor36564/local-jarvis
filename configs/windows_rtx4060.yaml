@@ -26,14 +26,51 @@ model:
 tools:
   command_timeout_seconds: 20
   max_output_chars: 10000
-  require_confirmation: true
   allowlist:
     - dir
     - echo
-    - nvidia-smi
     - type
+    - where
+    - whoami
+    - hostname
+    - ver
+    - systeminfo
+    - tasklist
+    - ipconfig
+    - getmac
+    - arp
+    - nslookup
+    - ping
+    - tracert
+    - pathping
+    - netstat
+    - driverquery
+    - powercfg /getactivescheme
+    - wmic cpu get loadpercentage
+    - wmic os get freephysicalmemory,totalvisiblememorysize
+    - nvidia-smi
+    - Get-Process
+    - Get-Service
+    - Get-Counter
+    - Get-ComputerInfo
+    - Get-CimInstance
+    - Get-NetIPConfiguration
+    - Get-Disk
+    - Get-Volume
+    - Get-WinEvent
     - Get-ChildItem
     - Get-Location
+    - explorer
+    - 'start '
+    - 'start ms-settings:'
+    - 'start shell:'
+    - 'start https://'
+    - 'start http://'
+    - 'start ""'
+    - control
+    - winget search
+    - 'powershell -NoProfile -Command "Set-ItemProperty -Path ''HKCU:\Control Panel\Desktop'' -Name Wallpaper -Value'
+    - RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters
     - git status
     - git log
     - python --version
