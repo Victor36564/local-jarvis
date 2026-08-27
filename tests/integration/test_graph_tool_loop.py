@@ -56,7 +56,7 @@ def test_graph_stops_repeated_tool_call(monkeypatch):
         ]
     )
     monkeypatch.setattr("jarvis.agent_graph.infer_once", lambda **_kwargs: next(calls))
-    cfg = JarvisConfig.model_validate({"tools": {"require_confirmation": False, "allowlist": ["echo"]}})
+    cfg = JarvisConfig.model_validate({"tools": {"allowlist": ["echo"]}})
     graph = build_graph(StubModel(), StubProcessor(), cfg)
 
     result = graph.invoke(
@@ -65,3 +65,43 @@ def test_graph_stops_repeated_tool_call(monkeypatch):
     )
 
     assert "gpu" in result["final_response"]
+
+
+def test_graph_stops_unrelated_follow_up_tool_call(monkeypatch):
+    calls = iter(
+        [
+            {"type": "tool_call", "payload": {"tool_name": "execute_terminal_command", "arguments": {"command": "echo opened"}}},
+            {"type": "tool_call", "payload": {"tool_name": "create_note", "arguments": {"content": "unexpected"}}},
+        ]
+    )
+    monkeypatch.setattr("jarvis.agent_graph.infer_once", lambda **_kwargs: next(calls))
+    cfg = JarvisConfig.model_validate({"tools": {"allowlist": ["echo"]}})
+    graph = build_graph(StubModel(), StubProcessor(), cfg)
+
+    result = graph.invoke(
+        {"transcript": "open the app", "audio": None, "screenshot": None, "tool_result": None, "tool_calls_count": 0},
+        config={"recursion_limit": 4},
+    )
+
+    assert "stdout: opened" in result["final_response"]
+
+
+def test_graph_stops_after_tool_error(monkeypatch):
+    calls = iter(
+        [
+            {"type": "tool_call", "payload": {"tool_name": "execute_terminal_command", "arguments": {"command": "code"}}},
+            {"type": "tool_call", "payload": {"tool_name": "create_note", "arguments": {"content": "unexpected"}}},
+        ]
+    )
+    monkeypatch.setattr("jarvis.agent_graph.infer_once", lambda **_kwargs: next(calls))
+    cfg = JarvisConfig.model_validate({"tools": {"allowlist": ["echo"]}})
+    graph = build_graph(StubModel(), StubProcessor(), cfg)
+
+    result = graph.invoke(
+        {"transcript": "open Visual Studio Code", "audio": None, "screenshot": None, "tool_result": None, "tool_calls_count": 0},
+        config={"recursion_limit": 4},
+    )
+
+    assert "failed" in result["final_response"]
+    assert "allowlist" in result["final_response"]
+    assert result["tool_calls_count"] == 1

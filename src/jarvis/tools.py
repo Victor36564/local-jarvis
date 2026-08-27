@@ -15,10 +15,11 @@ def execute_terminal_command(command: str, cfg: ToolConfig) -> dict[str, Any]:
     command = _expand_home_paths(command)
     enforce_command_policy(command, cfg)
 
+    invocation, use_shell = _command_invocation(command)
     proc = subprocess.run(  # noqa: S603
-        command,
+        invocation,
         capture_output=True,
-        shell=True,
+        shell=use_shell,
         text=True,
         timeout=cfg.command_timeout_seconds,
     )
@@ -29,6 +30,13 @@ def execute_terminal_command(command: str, cfg: ToolConfig) -> dict[str, Any]:
         "stdout": stdout,
         "stderr": stderr,
     }
+
+
+def _command_invocation(command: str) -> tuple[list[str] | str, bool]:
+    """Use PowerShell for cmdlets; retain CMD semantics for ordinary commands."""
+    if os.name == "nt" and re.match(r"^\s*(?:powershell(?:\.exe)?\b|get-|set-|select-|measure-|format-|convertto-)", command, re.IGNORECASE):
+        return ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", command], False
+    return command, True
 
 
 def _expand_home_paths(command: str) -> str:
@@ -78,6 +86,9 @@ def format_tool_result(tool_name: str, result: dict[str, Any]) -> str:
 
 
 def _format_terminal_result(result: dict[str, Any]) -> str:
+    if result.get("error"):
+        return f"The command failed: {result['error']}"
+
     if result.get("return_code") != 0:
         error = result.get("stderr") or result.get("stdout") or "unknown error"
         return f"The command failed (exit code {result.get('return_code')}): {error.strip()}"

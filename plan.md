@@ -63,4 +63,4 @@ When generating the codebase, proceed strictly in this order to ensure modular s
 ## 6. Success Criteria & Edge Cases
 *   **VRAM Management:** Peak memory consumption during concurrent vision and audio processing must not exceed 7.5GB to avoid CUDA out-of-memory (OOM) crashes on the RTX 4060.
 *   **Audio Driver Handling:** Ensure `sounddevice` fails gracefully and prompts the user to select the correct Windows microphone index if WASAPI/DirectSound fails.
-*   **Safety/Execution Limits:** The system must implement a confirmation loop (e.g., `input("Approve execution of [command]? Y/N")`) before the agent runs any `execute_terminal_command` outputs to prevent accidental destructive actions on the Windows host.
+*   **Safety/Execution Limits:** The system must execute only commands matching the configured allowlist; allowlisted commands run automatically, while all other commands are blocked.

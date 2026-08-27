@@ -2,22 +2,23 @@ from pathlib import Path
 import sys
 from types import ModuleType
 from unittest.mock import patch
+import subprocess
 
 import pytest
 
 from jarvis.config import ToolConfig
-from jarvis.tools import _expand_home_paths, format_tool_result, web_search
+from jarvis.tools import _command_invocation, _expand_home_paths, format_tool_result, web_search
 from jarvis.tool_safety import CommandSafetyError, command_is_allowlisted, enforce_command_policy
 
 
 def test_allowlist_match_prefix():
-    cfg = ToolConfig(require_confirmation=False, allowlist=["echo", "dir"])
+    cfg = ToolConfig(allowlist=["echo", "dir"])
     assert command_is_allowlisted("echo hello", cfg)
     assert not command_is_allowlisted("del /s C:\\", cfg)
 
 
 def test_enforce_blocks_non_allowlisted(caplog):
-    cfg = ToolConfig(require_confirmation=False, allowlist=["echo"])
+    cfg = ToolConfig(allowlist=["echo"])
     caplog.set_level("INFO")
     with pytest.raises(CommandSafetyError):
         enforce_command_policy("dir", cfg)
@@ -33,9 +34,71 @@ def test_expand_home_paths_for_generated_windows_command():
 
 
 def test_nvidia_smi_is_allowlisted():
-    cfg = ToolConfig(require_confirmation=False, allowlist=["nvidia-smi"])
+    cfg = ToolConfig(allowlist=["nvidia-smi"])
 
     enforce_command_policy("nvidia-smi", cfg)
+
+
+def test_default_policy_does_not_prompt_for_allowlisted_command(monkeypatch):
+    cfg = ToolConfig(allowlist=["echo"])
+    monkeypatch.setattr("builtins.input", lambda _prompt: pytest.fail("unexpected confirmation prompt"))
+
+    enforce_command_policy("echo hello", cfg)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "tasklist /fo table",
+        "Get-Counter '\\Processor(_Total)\\% Processor Time'",
+        "start spotify",
+        "start ms-settings:display",
+        'start "" notepad.exe',
+        "explorer C:\\Users",
+        "winget search vscode",
+    ],
+)
+def test_common_safe_windows_commands_are_allowlisted(command):
+    cfg = ToolConfig()
+
+    enforce_command_policy(command, cfg)
+
+
+def test_powershell_cmdlet_uses_powershell(monkeypatch):
+    monkeypatch.setattr("jarvis.tools.os.name", "nt")
+
+    invocation = _command_invocation("Get-Counter -Counter '_TotalProcessorTime'")
+
+    assert invocation == (
+        [
+            "powershell.exe",
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "Get-Counter -Counter '_TotalProcessorTime'",
+        ],
+        False,
+    )
+
+
+def test_execute_terminal_command_runs_powershell_cmdlet(monkeypatch):
+    calls = []
+
+    def fake_run(*args, **kwargs):
+        calls.append((args, kwargs))
+        return subprocess.CompletedProcess(args[0], 0, "cpu output", "")
+
+    monkeypatch.setattr("jarvis.tools.os.name", "nt")
+    monkeypatch.setattr("jarvis.tools.subprocess.run", fake_run)
+    cfg = ToolConfig(allowlist=["Get-Counter"])
+
+    from jarvis.tools import execute_terminal_command
+
+    result = execute_terminal_command("Get-Counter -Counter '_TotalProcessorTime'", cfg)
+
+    assert result["stdout"] == "cpu output"
+    assert calls[0][0][0][0] == "powershell.exe"
+    assert calls[0][1]["shell"] is False
 
 
 def test_web_search_reports_empty_results():
