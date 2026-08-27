@@ -29,12 +29,14 @@ def infer_once(
     messages = build_messages(transcript, tool_result=tool_result)
     messages[0]["content"] = f"{messages[0]['content']} {TOOL_CALL_SCHEMA_HELP}"
 
-    # Inject required modality tokens into the user prompt (assuming last message is the user)
+    user_message = next(message for message in messages if message["role"] == "user")
+
+    # Inject modality tokens into the user prompt. A tool-result message may be last.
     if screenshot is not None:
-        messages[-1]["content"] = f"<|image|>\n{messages[-1]['content']}"
+        user_message["content"] = f"<|image|>\n{user_message['content']}"
         
     if audio is not None:
-        messages[-1]["content"] = f"<|audio|>\n{messages[-1]['content']}"
+        user_message["content"] = f"<|audio|>\n{user_message['content']}"
 
     # Flatten messages into a single prompt string using the processor's built-in template
     formatted_text = processor.apply_chat_template(

@@ -12,6 +12,8 @@ class AudioConfig(BaseModel):
     channels: int = 1
     wake_chunk_size: int = 1280
     command_seconds: int = 20
+    silence_seconds: float = 2.0
+    silence_threshold: float = 0.01
     wake_threshold: float = 0.5
     debounce_seconds: float = 1.0
     device_index: int | None = None

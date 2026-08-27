@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import json
 from argparse import ArgumentParser
 
 from jarvis.audio_capture import record_command_audio
@@ -50,7 +51,15 @@ def _run_once(graph, cfg):
         "tool_calls_count": 0,
     }
     result = graph.invoke(state, config={"recursion_limit": cfg.runtime.recursion_limit})
-    print(result.get("final_response", "[no response]"))
+    final_response = result.get("final_response")
+    if final_response:
+        print(final_response)
+    elif result.get("tool_result") is not None:
+        logger.info("No final model response; displaying tool result in CLI")
+        print(json.dumps(result["tool_result"], indent=2, ensure_ascii=True))
+    else:
+        logger.info("No final response or tool result produced")
+        print("[no response]")
 
 
 def run() -> None:
