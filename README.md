@@ -34,9 +34,10 @@ Implemented baseline modules for:
 python -m venv .venv
 .venv\Scripts\Activate
 python -m pip install --upgrade pip
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
 cd local-jarvis
 pip install -e .
+python -c "import openwakeword; openwakeword.utils.download_models()"
 ```
 
 ## Diagnostics
