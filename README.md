@@ -1,8 +1,13 @@
 # local-jarvis
 
-Local multimodal Windows assistant.
+Local multimodal Windows OS assistant. This was created using full agentic coding (GitHub Copilot) starting with an inital PRD document (plan.md). Refer to plan.md for the full outline and implementation of this project.
 
-## Current Status
+## Demo
+
+[![Watch the demo here](https://youtube.com)](https://youtu.be/yHPWhWqzMJA)
+
+
+## Features
 
 Implemented baseline modules for:
 
@@ -17,12 +22,10 @@ Implemented baseline modules for:
 - Configurable transcription modes (`direct`, `stt`, `stt_fallback`, `manual`)
 - CUDA and VRAM diagnostic scripts
 
-This is an implementation starter. It is not production-ready yet.
-
 ## Prerequisites (Windows 10/11)
 
 - Python 3.10+
-- NVIDIA driver compatible with CUDA for RTX 4060
+- NVIDIA driver compatible with CUDA
 - A working microphone
 
 ## Setup
@@ -33,13 +36,6 @@ python -m venv .venv
 python -m pip install --upgrade pip
 cd local-jarvis
 pip install -e . --extra-index-url https://download.pytorch.org/whl/cu121
-```
-
-If editable install with extras fails in your shell, use:
-
-```powershell
-pip install -r requirements.txt
-pip install pytest pytest-timeout ruff
 ```
 
 ## Diagnostics
@@ -63,19 +59,6 @@ Default profile:
 ```powershell
 jarvis
 ```
-
-RTX 4060 tuned profile:
-
-```powershell
-jarvis --config configs/windows_rtx4060.yaml
-```
-
-On Windows, `jarvis` opens a separate status console while keeping the original
-terminal attached to the application. Logging remains in the original terminal;
-the popup contains only green status text for startup progress, `Listening...`,
-wake-word detection, audio/transcription progress, tool activity, and the final
-response. If Windows cannot create the popup, status text falls back to the
-original terminal alongside the logging output.
 
 ## Safety Model
 
