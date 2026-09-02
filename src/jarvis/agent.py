@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Model inference and tool-call interpretation live here.
 import json
 import logging
 from typing import Any
@@ -26,6 +27,7 @@ def infer_once(
     max_new_tokens: int,
     tool_result: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    # Build one multimodal prompt and keep absent modalities out of the request.
     messages = build_messages(transcript, tool_result=tool_result)
     messages[0]["content"] = f"{messages[0]['content']} {TOOL_CALL_SCHEMA_HELP}"
 

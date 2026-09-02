@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Typed state shared by the inference and tool graph nodes.
 from typing import Any, TypedDict
 
 

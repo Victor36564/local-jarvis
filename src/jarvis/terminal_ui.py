@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Status-only console output; application logs stay in the parent terminal.
 import os
 import socket
 import sys
@@ -15,6 +16,7 @@ class TerminalUI:
         self._green = os.name == "nt" and getattr(self.stream, "isatty", lambda: False)()
 
     def status(self, message: str) -> None:
+        # Flush each event so startup and interaction states appear immediately.
         prefix = "\033[92m" if self._green else ""
         suffix = "\033[0m" if self._green else ""
         self.stream.write(f"{prefix}{message}{suffix}\n")
@@ -55,6 +57,7 @@ class SocketTerminalUI(TerminalUI):
 
 
 def run_popup(port: int) -> None:
+    # The popup receives newline-delimited status messages from the parent.
     with socket.create_connection(("127.0.0.1", port)) as connection:
         terminal = TerminalUI()
         with connection.makefile("r", encoding="utf-8") as messages:

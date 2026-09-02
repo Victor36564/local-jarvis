@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Implement local tools and convert their results into concise responses.
 import os
 import re
 import subprocess
@@ -12,6 +13,7 @@ from jarvis.tool_safety import enforce_command_policy
 
 
 def execute_terminal_command(command: str, cfg: ToolConfig) -> dict[str, Any]:
+    # Enforce the allowlist before constructing the subprocess.
     command = _expand_home_paths(command)
     enforce_command_policy(command, cfg)
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Model and processor loading with quantization fallback.
 import logging
 from dataclasses import dataclass
 import torch
@@ -38,6 +39,7 @@ def load_model_bundle(config: JarvisConfig) -> ModelBundle:
 
     for mode in try_modes:
         try:
+            # Pin the model to the configured GPU instead of auto-offloading.
             logger.info("Loading model %s with %s", config.model.model_id, mode)
             
             # Explicitly force everything onto your RTX 4060 (cuda:0)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Local speech-to-text adapter with CPU/GPU selection.
 import logging
 
 import numpy as np
@@ -22,6 +23,7 @@ def transcribe_audio(audio: np.ndarray, sample_rate: int, model_id: str) -> str:
 
     device = "cpu"
     try:
+        # Prefer CUDA when available, but keep transcription usable on CPU.
         import torch
 
         if torch.cuda.is_available():
