@@ -34,8 +34,9 @@ Implemented baseline modules for:
 python -m venv .venv
 .venv\Scripts\Activate
 python -m pip install --upgrade pip
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 cd local-jarvis
-pip install -e . --extra-index-url https://download.pytorch.org/whl/cu121
+pip install -e .
 ```
 
 ## Diagnostics
