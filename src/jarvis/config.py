@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Typed configuration models and YAML loading.
 from pathlib import Path
 from typing import Any
 
@@ -111,6 +112,7 @@ DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "configs" / "default
 
 
 def load_config(config_path: str | Path | None = None) -> JarvisConfig:
+    # Missing configuration files fall back to validated defaults.
     path = Path(config_path) if config_path else DEFAULT_CONFIG_PATH
     if not path.exists():
         return JarvisConfig()

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Microphone discovery, normalization, and command recording.
 import logging
 import threading
 
@@ -18,6 +19,7 @@ def list_input_devices() -> list[dict]:
 
 
 def normalize_audio(audio: np.ndarray) -> np.ndarray:
+    # Convert multichannel input to the mono format expected by STT.
     if audio.ndim > 1:
         audio = np.mean(audio, axis=1)
     audio = audio.astype(np.float32)
@@ -65,6 +67,7 @@ def record_command_audio(cfg: AudioConfig) -> np.ndarray:
         device=cfg.device_index,
         callback=callback,
     ):
+        # The callback ends recording after speech followed by enough silence.
         recording_done.wait(timeout=cfg.command_seconds)
 
     if not chunks:

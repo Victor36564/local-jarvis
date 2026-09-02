@@ -1,5 +1,6 @@
 """Local Jarvis package."""
 
+# Public modules that make up the assistant runtime.
 __all__ = [
     "config",
     "model_loader",

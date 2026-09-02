@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Parse strict JSON tool calls and tolerate simple YAML model output.
 import json
 import re
 from typing import Any
@@ -14,6 +15,7 @@ class ToolCall(BaseModel):
 
 
 def _extract_json_objects(text: str) -> list[dict[str, Any]]:
+    # Try every opening brace because models may wrap JSON in extra text.
     decoder = json.JSONDecoder()
     objects = []
     for match in re.finditer(r"\{", text):

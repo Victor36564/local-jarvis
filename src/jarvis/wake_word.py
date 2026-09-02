@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Continuous wake-word detection and microphone stream management.
 import logging
 import threading
 import time
@@ -77,6 +78,7 @@ class WakeWordListener:
                 stats["score"] = score
                 now = time.monotonic()
 
+                # Debounce triggers so one spoken wake word starts one turn.
                 if score >= self.cfg.wake_threshold and now - self._last_trigger > self.cfg.debounce_seconds:
                     self._last_trigger = now
                     logger.info("Wake word detected with score %.3f", score)

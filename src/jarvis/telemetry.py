@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Lightweight runtime metrics used during model loading and diagnostics.
 import logging
 from dataclasses import dataclass
 
@@ -13,6 +14,7 @@ class RuntimeTelemetry:
 
 
 def snapshot_gpu_memory() -> RuntimeTelemetry:
+    # Telemetry must never prevent the assistant from starting.
     try:
         import torch
 

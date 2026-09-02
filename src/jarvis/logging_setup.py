@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Configure diagnostic logging for the original application terminal.
 import logging
 
 

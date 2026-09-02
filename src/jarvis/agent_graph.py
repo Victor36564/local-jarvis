@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# LangGraph owns the infer, tool, and response control flow.
 import logging
 from collections.abc import Callable
 from typing import Any
@@ -38,6 +39,7 @@ def build_graph(
     graph = StateGraph(JarvisState)
 
     def infer_node(state: JarvisState) -> JarvisState:
+        # Stop runaway tool loops before asking the model for another action.
         tool_calls_count = state.get("tool_calls_count", 0)
         if tool_calls_count > cfg.runtime.max_tool_calls_per_turn:
             return {

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# System instructions and model message construction.
 import json
 from typing import Any
 
@@ -61,6 +62,7 @@ Assistant:
 
 
 def build_messages(transcript: str, tool_result: dict[str, Any] | None = None) -> list[dict[str, str]]:
+  # Return the tool result as a separate message for the follow-up inference.
     messages = [
         {"role": "system", "content": "You are Jarvis, a local Windows OS assistant. Be concise and safe. Use tools only when needed."},
         {"role": "user", "content": f"{SYSTEM_PROMPT}\n\nUser Input:{transcript}"},

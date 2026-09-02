@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# Application entry point and top-level lifecycle coordination.
 import json
 import logging
 import os
@@ -48,6 +49,7 @@ def _resolve_transcript(audio, cfg, terminal: TerminalUI | None = None) -> str:
 
 
 def _run_once(graph, cfg, terminal: TerminalUI | None = None):
+    # Capture the current screen and voice request before invoking the graph.
     screenshot = capture_screen(cfg.vision)
     audio = record_command_audio(cfg.audio)
     transcript = _resolve_transcript(audio, cfg, terminal)
@@ -84,6 +86,7 @@ def _run_once(graph, cfg, terminal: TerminalUI | None = None):
 
 
 def _open_status_terminal() -> TerminalUI:
+    # Keep logging in this process; the child console only renders status events.
     if os.name != "nt":
         return TerminalUI()
 
