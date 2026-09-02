@@ -4,7 +4,7 @@ Local multimodal Windows OS assistant. This was created using full agentic codin
 
 ## Demo
 
-[![Watch the demo here](https://youtu.be/yHPWhWqzMJA)](https://youtu.be/yHPWhWqzMJA)
+[![Watch the demo here](https://img.youtube.com/vi/yHPWhWqzMJA/maxresdefault.jpg)](https://youtu.be/yHPWhWqzMJA)
 
 
 ## Features
