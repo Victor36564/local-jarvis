@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from typing import Any
 
 from langgraph.graph import END, StateGraph
@@ -28,7 +29,12 @@ TOOL_REGISTRY = {
 }
 
 
-def build_graph(model: Any, processor: Any, cfg: JarvisConfig):
+def build_graph(
+    model: Any,
+    processor: Any,
+    cfg: JarvisConfig,
+    on_status: Callable[[str], None] | None = None,
+):
     graph = StateGraph(JarvisState)
 
     def infer_node(state: JarvisState) -> JarvisState:
@@ -58,6 +64,8 @@ def build_graph(model: Any, processor: Any, cfg: JarvisConfig):
                     ),
                     "pending_tool_call": None,
                 }
+            if on_status:
+                on_status(f"Tool requested: {result['payload'].get('tool_name', 'unknown')}")
             return {
                 "pending_tool_call": result["payload"],
                 "tool_calls_count": tool_calls_count + 1,
@@ -72,6 +80,8 @@ def build_graph(model: Any, processor: Any, cfg: JarvisConfig):
         tool = TOOL_REGISTRY.get(name)
         if tool is None:
             logger.info("Tool not executed: unknown tool '%s'", name)
+            if on_status:
+                on_status(f"Tool unavailable: {name or 'unknown'}")
             return {
                 "tool_result": {"error": f"Unknown tool: {name}"},
                 "pending_tool_call": None,
@@ -79,9 +89,9 @@ def build_graph(model: Any, processor: Any, cfg: JarvisConfig):
             }
 
         try:
-            if name == "execute_terminal_command":
-                result = tool(arguments.get("command", ""), cfg.tools)
-            elif name == "terminal":
+            if on_status:
+                on_status(f"Calling tool: {name}")
+            if name == "execute_terminal_command" or name == "terminal":
                 result = tool(arguments.get("command", ""), cfg.tools)
             elif name == "web_search":
                 result = tool(arguments.get("query", ""), arguments.get("open_in_browser", False))
@@ -94,6 +104,8 @@ def build_graph(model: Any, processor: Any, cfg: JarvisConfig):
             result = {"error": str(exc), "tool": name}
 
         logger.info("Tool '%s' completed with result: %s", name, result)
+        if on_status:
+            on_status(f"Tool completed: {name or 'unknown'}")
 
         response = {"tool_result": result, "pending_tool_call": None, "last_tool_call": call}
         if "error" in result:

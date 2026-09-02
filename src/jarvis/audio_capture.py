@@ -41,7 +41,6 @@ def record_command_audio(cfg: AudioConfig) -> np.ndarray:
         cfg.silence_seconds,
         cfg.command_seconds,
     )
-
     def callback(indata, frames, _time_info, status):  # pragma: no cover
         nonlocal silence_frames, speech_detected
         if status:

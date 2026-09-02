@@ -1,6 +1,6 @@
 # local-jarvis
 
-Local multimodal Windows assistant scaffold for the PRD in `plan.md`.
+Local multimodal Windows assistant.
 
 ## Current Status
 
@@ -33,7 +33,6 @@ python -m venv .venv
 python -m pip install --upgrade pip
 cd local-jarvis
 pip install -e . --extra-index-url https://download.pytorch.org/whl/cu121
-python -c "import openwakeword; openwakeword.utils.download_models()"
 ```
 
 If editable install with extras fails in your shell, use:
@@ -71,10 +70,17 @@ RTX 4060 tuned profile:
 jarvis --config configs/windows_rtx4060.yaml
 ```
 
+On Windows, `jarvis` opens a separate status console while keeping the original
+terminal attached to the application. Logging remains in the original terminal;
+the popup contains only green status text for startup progress, `Listening...`,
+wake-word detection, audio/transcription progress, tool activity, and the final
+response. If Windows cannot create the popup, status text falls back to the
+original terminal alongside the logging output.
+
 ## Safety Model
 
 - `execute_terminal_command` is allowlist-only.
-- Every command requires explicit Y/N confirmation.
+- Allowlisted commands execute automatically; commands outside the allowlist are blocked.
 - Command output is truncated to avoid flooding context.
 - Tool calls are capped per turn via runtime config.
 

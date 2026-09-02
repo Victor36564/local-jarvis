@@ -39,7 +39,9 @@ class WakeWordListener:
         for name in self._model.models:
             self._model.models[name].set_providers(cpu_provider)
 
-    def listen(self, on_wake: Callable[[], None]) -> None:
+    def listen(
+        self, on_wake: Callable[[], None], on_status: Callable[[str], None] | None = None
+    ) -> None:
         import sounddevice as sd
 
         if self._model is None:
@@ -107,3 +109,5 @@ class WakeWordListener:
             on_wake()
             self._model.reset()
             logger.info("Command processing complete; resuming wake listener.")
+            if on_status:
+                on_status("Listening...")
